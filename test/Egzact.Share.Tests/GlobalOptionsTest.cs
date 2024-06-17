@@ -24,4 +24,19 @@ public class GlobalOptionsTest
         Assert.Equal(fs, opt.Ofs);
         Assert.Equal(fs, opt.Fs);
     }
+    
+    [Fact]
+    public void Test_IfsとOfsに値を設定したときはそれが設定されているべき()
+    {
+        const string fs = ",";
+        const string ifs = "ifs";
+        const string ofs = "ofs";
+        var opt = new GlobalOptions(fs)
+        {
+            Ifs = ifs, Ofs = ofs
+        };
+        Assert.Equal(ifs, opt.Ifs);
+        Assert.Equal(ofs, opt.Ofs);
+        Assert.Equal(fs, opt.Fs);
+    }
 }

@@ -5,12 +5,14 @@ using Share;
 public class GlobalOptionsTest
 {
     [Fact]
-    public void Test_Fsのデフォルト値はスペースであるべき()
+    public void Test_Default()
     {
         var opt = new GlobalOptions();
         Assert.Equal(" ", opt.Ifs);
         Assert.Equal(" ", opt.Ofs);
         Assert.Equal(" ", opt.Fs);
+        Assert.Equal("\n", opt.Eor);
+        Assert.Equal("\n", opt.Eos);
     }
 
     [Fact]

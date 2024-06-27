@@ -5,52 +5,44 @@ using Egzact.IO;
 
 var app = CoconaApp.Create();
 
-using var dummyStdin = new MemoryStream(Console.InputEncoding.GetBytes(@"""
-a b c d
-a b c d
-a b c d
-a b c d
-a b c d
-"""));
-
 app.AddSubCommand("conv",
     x =>
     {
         x.AddCommand(async (GlobalOptions globalOptions, [Option] bool each, [Argument] int numberOfColumns) =>
         {
+            using var dummyStdin = new MemoryStream(Console.InputEncoding.GetBytes("""
+                a b c d
+                a b c d
+                a b c d
+                a b c d
+                a b c d
+                """));
             var conv = new Conv(numberOfColumns);
             // using var stdin = new StreamReader(Console.OpenStandardInput());
             using var stdin = new StreamReader(dummyStdin);
             await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
             IReadOnlyList<IEnumerable<string>>? prevSet = null;
 
-            string[] prevRemain = [];
+            IReadOnlyList<string> prevRemain = [];
             while (await stdin.ReadLineAsync() is { } line)
             {
-                var inputRecord = line.Split(globalOptions.InputFieldSeparator);
+                var inputRecord =
+                    line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
                 var (set, remain) =
                     conv.Execute(each ? inputRecord : prevRemain.Concat(inputRecord));
 
-                if (set is null)
+                prevRemain = remain;
+                if (set is null && !each)
                 {
-                    // eachな場合、setが作られなかったときはremainをsetとして扱う
-                    if (each)
-                    {
-                        set = [remain];
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    continue;
                 }
-                else
-                {
-                    prevRemain = remain.ToArray();
-                }
-                
+
+                set ??= new[] { remain };
+
                 if (prevSet is not null)
                 {
-                    await stdout.WriteSetAsync(prevSet, false);
+                    await stdout.WriteSetAsync(prevSet, !each);
+                    if(each && globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
                 }
 
                 prevSet = set;
@@ -58,7 +50,7 @@ app.AddSubCommand("conv",
 
             if (prevSet is not null)
             {
-                await stdout.WriteSetAsync(prevSet, true);
+                await stdout.WriteSetAsync(prevSet, !each);
             }
         });
     });
@@ -74,40 +66,22 @@ app.Run();
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class GlobalOptions : ICommandParameterSet
 {
-    private string _fs = " ";
-
     [Option("fs", Description = "Field separator")]
     [HasDefaultValue]
-    public string FieldSeparator
-    {
-        get => _fs;
-        set
-        {
-            _fs = value;
-            _ifs = value;
-            _ofs = value;
-            
-            Console.WriteLine($"fs: {value} ifs: {InputFieldSeparator} ofs: {OutputFieldSeparator}");
-        }
-    }
+    public string FieldSeparator { get; set; } = " ";
 
-    private string? _ifs, _ofs;
-
+    // fsが指定されたとき、ifsもofsも指定されていない場合はfsを使う。
+    // これをプロパティのgetter, setter で書くと
+    // { get => _ifs ?? FieldSeparator; set => _ifs = value; }
+    // みたいになるが、どこかのタイミングで FieldSeparator が " " になるのを確認している。なんでこうなるのかは深掘りしてない
+    // とりあえず、ifs, ofs が指定されていないことが表明できればいいので Nullable で表現している
     [Option("ifs", Description = "Input field separator")]
     [HasDefaultValue]
-    public string InputFieldSeparator
-    {
-        get => _ifs ?? FieldSeparator;
-        set => _ifs = value;
-    }
+    public string? InputFieldSeparator { get; set; } = null;
 
     [Option("ofs", Description = "Output field separator")]
     [HasDefaultValue]
-    public string OutputFieldSeparator
-    {
-        get => _ofs ?? FieldSeparator;
-        set => _ofs = value;
-    }
+    public string? OutputFieldSeparator { get; set; } = null;
 
     private string _endOfSet = Environment.NewLine;
 
@@ -125,9 +99,9 @@ public class GlobalOptions : ICommandParameterSet
             var index = value.IndexOf(Environment.NewLine, StringComparison.Ordinal);
             _endOfSet = index switch
             {
-                -1 => $"{Environment.NewLine}{value}",
-                0 => value,
-                _ => $"{Environment.NewLine}{value[..(index - 1)]}"
+                -1 => value,
+                0 => Environment.NewLine,
+                _ => $"{value[..(index - 1)]}"
             };
         }
     }
@@ -143,6 +117,6 @@ public class GlobalOptions : ICommandParameterSet
     /// <returns></returns>
     public OutputStream CreateOutputStream(Stream stream)
     {
-        return new OutputStream(stream, OutputFieldSeparator, EndOfRecord, EndOfSet);
+        return new OutputStream(stream, OutputFieldSeparator ?? FieldSeparator, EndOfRecord, EndOfSet);
     }
 }

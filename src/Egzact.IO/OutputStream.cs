@@ -21,24 +21,29 @@ public class OutputStream : IDisposable, IAsyncDisposable
     /// setを出力する
     /// </summary>
     /// <param name="set">出力したいset</param>
-    /// <param name="isLastSet">最後のsetかどうか。最後かどうかでeosの出力条件が変わる</param>
-    public async Task WriteSetAsync(IReadOnlyList<IEnumerable<string>> set, bool isLastSet)
+    /// <param name="allowWriteEorAtEndOfRecord">各レコードの最後にeorを書いていいかどうか</param>
+    public async Task WriteSetAsync(IReadOnlyList<IEnumerable<string>> set, bool allowWriteEorAtEndOfRecord)
     {
         var length = set.Count;
-        for(var i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             var record = set[i];
             await _streamWriter.WriteAsync(string.Join(_fieldSeparator, record));
             if (i < length - 1)
-            {
                 await _streamWriter.WriteAsync(_endOfRecord);
+            else
+            {
+                if (allowWriteEorAtEndOfRecord)
+                    await _streamWriter.WriteAsync(_endOfRecord);
+                else
+                    await _streamWriter.WriteAsync(Environment.NewLine);
             }
         }
-
-        // 最終行の場合はeosではなく改行を出力する。本家がそうなってる
-        if (!isLastSet) await _streamWriter.WriteLineAsync(_endOfSet);
-        else await _streamWriter.WriteAsync(Environment.NewLine);
     }
+
+    public async Task WriteEosAsync() => await _streamWriter.WriteAsync(_endOfSet);
+
+    public async Task WriteLineEosAsync() => await _streamWriter.WriteLineAsync(_endOfSet);
 
     public void Dispose()
     {

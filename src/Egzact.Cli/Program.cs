@@ -2,6 +2,7 @@
 using Cocona;
 using Egzact.Command;
 using Egzact.IO;
+using Microsoft.Extensions.Options;
 
 var app = CoconaApp.Create();
 
@@ -19,7 +20,7 @@ app.AddSubCommand("conv",
             while (await stdin.ReadLineAsync() is { } line)
             {
                 var inputRecord =
-                    line.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+                    line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
                 var (set, remain) =
                     conv.Execute(each ? inputRecord : prevRemain.Concat(inputRecord));
 
@@ -57,9 +58,9 @@ app.AddCommand("flat", async (GlobalOptions globalOptions, [Option] bool each, [
         IReadOnlyList<IEnumerable<string>>? prevSet = null;
         IReadOnlyList<string> prevRemain = [];
 
-        while (await stdin.ReadLineAsync() is {} line)  
+        while (await stdin.ReadLineAsync() is { } line)
         {
-            var inputRecord = line.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+            var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
             var (set, remain) = flat.Execute(prevRemain.Concat(inputRecord).ToList());
 
             if (prevSet is not null)
@@ -67,22 +68,59 @@ app.AddCommand("flat", async (GlobalOptions globalOptions, [Option] bool each, [
                 await stdout.WriteSetAsync(prevSet, !each);
                 if (each && globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
             }
-            
-            if(set is null && !each)
+
+            if (set is null && !each)
                 continue;
-            
-            set ??= new[] {remain};
+
+            set ??= new[] { remain };
 
             prevSet = each ? [..set, remain] : set;
             prevRemain = each ? [] : remain;
         }
-        
-        if(prevSet is not null)
+
+        if (prevSet is not null)
             await stdout.WriteSetAsync(prevSet, !each);
-        if(prevRemain.Count > 0)
+        if (prevRemain.Count > 0)
             await stdout.WriteSetAsync([prevRemain], !each);
     }
 );
+
+app.AddCommand("slit", async (GlobalOptions globalOptions, [Option] bool each, [Argument] int numberOfSlits) =>
+{
+    var slit = new Slit(numberOfSlits);
+    using var stdin = new StreamReader(Console.OpenStandardInput());
+    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
+
+    if (each)
+    {
+        IReadOnlyList<IEnumerable<string>>? prevSet = null;
+
+        while (await stdin.ReadLineAsync() is { } line)
+        {
+            var inputRecords = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+            var set = slit.Execute(inputRecords);
+
+            if (prevSet is not null)
+            {
+                await stdout.WriteSetAsync(prevSet, false);
+                if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+            }
+
+            prevSet = set;
+        }
+
+        if (prevSet is not null)
+            await stdout.WriteSetAsync(prevSet, false);
+    }
+    else
+    {
+        var records = (await stdin.ReadToEndAsync()).TrimEnd().Split(Environment.NewLine).Select(str =>
+            str.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator)).ToList();
+
+        var set = slit.Execute(records.SelectMany(x => x).ToList());
+        await stdout.WriteSetAsync(set, true);
+    }
+});
 
 app.Run();
 

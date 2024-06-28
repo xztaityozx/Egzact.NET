@@ -3,9 +3,9 @@
 re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 
 # TODO
-- [ ] `conv`
-- [ ] `flat`
-- [ ] `slit`
+- [x] `conv`
+- [x] `flat`
+- [x] `slit`
 - [ ] `stairl`
 - [ ] `stairr`
 - [ ] `sublist`

@@ -10,16 +10,8 @@ app.AddSubCommand("conv",
     {
         x.AddCommand(async (GlobalOptions globalOptions, [Option] bool each, [Argument] int numberOfColumns) =>
         {
-            using var dummyStdin = new MemoryStream(Console.InputEncoding.GetBytes("""
-                a b c d
-                a b c d
-                a b c d
-                a b c d
-                a b c d
-                """));
             var conv = new Conv(numberOfColumns);
-            // using var stdin = new StreamReader(Console.OpenStandardInput());
-            using var stdin = new StreamReader(dummyStdin);
+            using var stdin = new StreamReader(Console.OpenStandardInput());
             await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
             IReadOnlyList<IEnumerable<string>>? prevSet = null;
 
@@ -27,7 +19,7 @@ app.AddSubCommand("conv",
             while (await stdin.ReadLineAsync() is { } line)
             {
                 var inputRecord =
-                    line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+                    line.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
                 var (set, remain) =
                     conv.Execute(each ? inputRecord : prevRemain.Concat(inputRecord));
 
@@ -42,7 +34,7 @@ app.AddSubCommand("conv",
                 if (prevSet is not null)
                 {
                     await stdout.WriteSetAsync(prevSet, !each);
-                    if(each && globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+                    if (each && globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
                 }
 
                 prevSet = set;
@@ -53,7 +45,44 @@ app.AddSubCommand("conv",
                 await stdout.WriteSetAsync(prevSet, !each);
             }
         });
-    });
+    }
+);
+
+app.AddCommand("flat", async (GlobalOptions globalOptions, [Option] bool each, [Argument] int? numberOfColumns) =>
+    {
+        using var stdin = new StreamReader(Console.OpenStandardInput());
+        await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
+        var flat = new Flat(numberOfColumns);
+
+        IReadOnlyList<IEnumerable<string>>? prevSet = null;
+        IReadOnlyList<string> prevRemain = [];
+
+        while (await stdin.ReadLineAsync() is {} line)  
+        {
+            var inputRecord = line.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+            var (set, remain) = flat.Execute(prevRemain.Concat(inputRecord).ToList());
+
+            if (prevSet is not null)
+            {
+                await stdout.WriteSetAsync(prevSet, !each);
+                if (each && globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+            }
+            
+            if(set is null && !each)
+                continue;
+            
+            set ??= new[] {remain};
+
+            prevSet = each ? [..set, remain] : set;
+            prevRemain = each ? [] : remain;
+        }
+        
+        if(prevSet is not null)
+            await stdout.WriteSetAsync(prevSet, !each);
+        if(prevRemain.Count > 0)
+            await stdout.WriteSetAsync([prevRemain], !each);
+    }
+);
 
 app.Run();
 

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egzact.Command.Test", "test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egzact.IO.Test", "test\Egzact.IO.Test\Egzact.IO.Test.csproj", "{BF8328A2-88CC-4E94-8ACD-CED92678673A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Egzact.Shared", "src\Egzact.Shared\Egzact.Shared.csproj", "{10E4F40F-2309-44BC-8C99-BC56E9B9B4A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,5 +55,9 @@ Global
 		{BF8328A2-88CC-4E94-8ACD-CED92678673A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF8328A2-88CC-4E94-8ACD-CED92678673A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF8328A2-88CC-4E94-8ACD-CED92678673A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10E4F40F-2309-44BC-8C99-BC56E9B9B4A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10E4F40F-2309-44BC-8C99-BC56E9B9B4A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10E4F40F-2309-44BC-8C99-BC56E9B9B4A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10E4F40F-2309-44BC-8C99-BC56E9B9B4A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -2,6 +2,7 @@
 using Cocona;
 using Egzact.Command;
 using Egzact.IO;
+using Egzact.Shared;
 using Microsoft.Extensions.Options;
 
 var app = CoconaApp.Create();
@@ -122,7 +123,33 @@ app.AddCommand("slit", async (GlobalOptions globalOptions, [Option] bool each, [
     }
 });
 
+app.AddCommand("stair", async (GlobalOptions globalOptions, [Option] Direction direction) =>
+{
+    using var stdin = new StreamReader(Console.OpenStandardInput());
+    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
+    var stair = new Stair(direction);
+    
+    IReadOnlyList<IEnumerable<string>>? prevSet = null;
+    while(await stdin.ReadLineAsync() is { } line)
+    {
+        var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+        var set = stair.Execute(inputRecord);
+
+        if (prevSet is not null)
+        {
+            await stdout.WriteSetAsync(prevSet, false);
+            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+        }
+
+        prevSet = set;
+    }
+    
+    if (prevSet is not null)
+        await stdout.WriteSetAsync(prevSet, false);
+});
+
 app.Run();
+
 
 /// <summary>
 /// すべてのサブコマンドで利用しているオプションをまとめたクラス

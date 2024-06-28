@@ -6,8 +6,8 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 - [x] `conv`
 - [x] `flat`
 - [x] `slit`
-- [ ] `stairl`
-- [ ] `stairr`
+- [x] `stairl`
+- [x] `stairr`
 - [ ] `sublist`
 - [ ] `subset`
 - [ ] `crops`

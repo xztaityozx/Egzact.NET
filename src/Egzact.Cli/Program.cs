@@ -158,7 +158,7 @@ app.AddCommand("sublist", async (GlobalOptions globalOptions) =>
     while(await stdin.ReadLineAsync() is { } line)
     {
         var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
-        var set = subList.Execute(inputRecord);
+        var set = SubList.Execute(inputRecord);
 
         if (prevSet is not null)
         {
@@ -171,6 +171,32 @@ app.AddCommand("sublist", async (GlobalOptions globalOptions) =>
     
     if (prevSet is not null)
         await stdout.WriteSetAsync(prevSet, false);
+});
+
+app.AddCommand("subset", async (GlobalOptions globalOptions) =>
+{
+    using var stdin = new StreamReader(Console.OpenStandardInput());
+    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
+    var subSet = new SubSet();
+    
+    IReadOnlyList<IEnumerable<string>>? prevSet = null;
+    while(await stdin.ReadLineAsync() is { } line)
+    {
+        var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+        var set = subSet.Execute(inputRecord);
+
+        if (prevSet is not null)
+        {
+            await stdout.WriteSetAsync(prevSet, false);
+            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+        }
+
+        prevSet = set;
+    }
+    
+    if (prevSet is not null)
+        await stdout.WriteSetAsync(prevSet, false);
+
 });
 
 app.Run();

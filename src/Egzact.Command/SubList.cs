@@ -5,7 +5,7 @@ namespace Egzact.Command;
 public class SubList
 {
     /// <summary>
-    /// inputRecordのサブセットを返す
+    /// inputRecordのサブリストを返す
     /// ex:
     /// > echo A B C D | sublist
     /// A
@@ -21,7 +21,7 @@ public class SubList
     /// </summary>
     /// <param name="inputRecord"></param>
     /// <returns></returns>
-    public IReadOnlyList<IEnumerable<string>> Execute(IReadOnlyList<string> inputRecord)
+    public static IReadOnlyList<IEnumerable<string>> Execute(IReadOnlyList<string> inputRecord)
     {
         var stair = new Stair(Direction.Right);
         var result = new List<IEnumerable<string>>();

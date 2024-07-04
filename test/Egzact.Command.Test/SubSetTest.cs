@@ -1,15 +1,11 @@
 namespace Egzact.Command.Test;
 
-public class SubListTest
+public class SubSetTest
 {
     public record TestExecuteTestCase(
         string Name,
         IReadOnlyList<string> InputRecord,
-        IReadOnlyList<IEnumerable<string>> Expected
-    )
-    {
-        public override string ToString() => Name;
-    }
+        IReadOnlyList<IEnumerable<string>> Expected);
 
     public static IEnumerable<object[]> TestExecuteTestCases()
     {
@@ -21,22 +17,27 @@ public class SubListTest
                 []
             ),
             new TestExecuteTestCase(
-                "A B to be A, A B, B",
-                ["A", "B"],
-                [["A"], ["A", "B"], ["B"]]
+                "A to be A",
+                ["A"],
+                [["A"]]
             ),
             new TestExecuteTestCase(
-                "A B C D to be A, A B, B, A B C, B C, C, A B C D, B C D, C D, D",
+                "A B to be A, B, A B",
+                ["A", "B"],
+                [["A"], ["B"], ["A", "B"]]
+            ),
+            new TestExecuteTestCase(
+                "A B C D to be A, B, C, D, A B, A C, B C, A D, B D, C D, A B C, A B D, A C D, B C D, A B C D",
                 ["A", "B", "C", "D"],
                 [
-                    ["A"], 
-                    ["A", "B"], ["B"], 
-                    ["A", "B", "C"], ["B", "C"], ["C"], 
-                    ["A", "B", "C", "D"], ["B", "C", "D"], ["C", "D"], ["D"]
+                    ["A"], ["B"], ["C"], ["D"],
+                    ["A", "B"], ["A", "C"], ["B", "C"], ["A", "D"], ["B", "D"], ["C", "D"],
+                    ["A", "B", "C"], ["A", "B", "D"], ["A", "C", "D"], ["B", "C", "D"],
+                    ["A", "B", "C", "D"]
                 ]
             )
         };
-
+        
         return testCases.Select(tt => new object[] { tt });
     }
     
@@ -44,8 +45,8 @@ public class SubListTest
     [MemberData(nameof(TestExecuteTestCases))]
     public void TestExecute(TestExecuteTestCase testCase)
     {
-        var subList = new SubList();
-        var actual = SubList.Execute(testCase.InputRecord);
+        var subset = new SubSet();
+        var actual = subset.Execute(testCase.InputRecord);
         Assert.Equal(testCase.Expected, actual);
     }
 }

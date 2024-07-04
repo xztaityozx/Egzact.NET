@@ -3,7 +3,6 @@ using Cocona;
 using Egzact.Command;
 using Egzact.IO;
 using Egzact.Shared;
-using Microsoft.Extensions.Options;
 
 var app = CoconaApp.Create();
 
@@ -89,118 +88,61 @@ app.AddCommand("flat", async (GlobalOptions globalOptions, [Option] bool each, [
 app.AddCommand("slit", async (GlobalOptions globalOptions, [Option] bool each, [Argument] int numberOfSlits) =>
 {
     var slit = new Slit(numberOfSlits);
-    using var stdin = new StreamReader(Console.OpenStandardInput());
-    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
 
     if (each)
     {
-        IReadOnlyList<IEnumerable<string>>? prevSet = null;
-
-        while (await stdin.ReadLineAsync() is { } line)
-        {
-            var inputRecords = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
-            var set = slit.Execute(inputRecords);
-
-            if (prevSet is not null)
-            {
-                await stdout.WriteSetAsync(prevSet, false);
-                if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
-            }
-
-            prevSet = set;
-        }
-
-        if (prevSet is not null)
-            await stdout.WriteSetAsync(prevSet, false);
+        await ExecuteEgzactMultipleResultCommandAsync(globalOptions, slit);
+        return;
     }
-    else
-    {
-        var records = (await stdin.ReadToEndAsync()).TrimEnd().Split(Environment.NewLine).Select(str =>
-            str.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator)).ToList();
 
-        var set = slit.Execute(records.SelectMany(x => x).ToList());
-        await stdout.WriteSetAsync(set, true);
-    }
-});
-
-app.AddCommand("stair", async (GlobalOptions globalOptions, [Option] Direction direction) =>
-{
     using var stdin = new StreamReader(Console.OpenStandardInput());
     await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
-    var stair = new Stair(direction);
-    
-    IReadOnlyList<IEnumerable<string>>? prevSet = null;
-    while(await stdin.ReadLineAsync() is { } line)
-    {
-        var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
-        var set = stair.Execute(inputRecord);
 
-        if (prevSet is not null)
-        {
-            await stdout.WriteSetAsync(prevSet, false);
-            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
-        }
+    var records = (await stdin.ReadToEndAsync()).TrimEnd().Split(Environment.NewLine).Select(str =>
+        str.Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator)).ToList();
 
-        prevSet = set;
-    }
-    
-    if (prevSet is not null)
-        await stdout.WriteSetAsync(prevSet, false);
+    var set = slit.Execute(records.SelectMany(x => x).ToList());
+    await stdout.WriteSetAsync(set, true);
 });
 
-app.AddCommand("sublist", async (GlobalOptions globalOptions) =>
-{
-    using var stdin = new StreamReader(Console.OpenStandardInput());
-    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
-    var subList = new SubList();
-    
-    IReadOnlyList<IEnumerable<string>>? prevSet = null;
-    while(await stdin.ReadLineAsync() is { } line)
-    {
-        var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
-        var set = SubList.Execute(inputRecord);
+app.AddCommand("stair",
+    async (GlobalOptions globalOptions, [Option] Direction direction) =>
+    await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Stair(direction)));
 
-        if (prevSet is not null)
-        {
-            await stdout.WriteSetAsync(prevSet, false);
-            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
-        }
+app.AddCommand("sublist",
+    async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new SubList()));
 
-        prevSet = set;
-    }
-    
-    if (prevSet is not null)
-        await stdout.WriteSetAsync(prevSet, false);
-});
-
-app.AddCommand("subset", async (GlobalOptions globalOptions) =>
-{
-    using var stdin = new StreamReader(Console.OpenStandardInput());
-    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
-    var subSet = new SubSet();
-    
-    IReadOnlyList<IEnumerable<string>>? prevSet = null;
-    while(await stdin.ReadLineAsync() is { } line)
-    {
-        var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
-        var set = subSet.Execute(inputRecord);
-
-        if (prevSet is not null)
-        {
-            await stdout.WriteSetAsync(prevSet, false);
-            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
-        }
-
-        prevSet = set;
-    }
-    
-    if (prevSet is not null)
-        await stdout.WriteSetAsync(prevSet, false);
-
-});
+app.AddCommand("subset",
+    async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new SubSet()));
 
 app.Run();
 
+return;
+
+async Task ExecuteEgzactMultipleResultCommandAsync(GlobalOptions globalOptions, IEgzactMultipleResultCommand command)
+{
+    using var stdin = new StreamReader(Console.OpenStandardInput());
+    await using var stdout =
+        new OutputStream(Console.OpenStandardOutput(), " ", Environment.NewLine, Environment.NewLine);
+    IReadOnlyList<IEnumerable<string>>? prevSet = null;
+
+    while (await stdin.ReadLineAsync() is { } line)
+    {
+        var inputRecord = line.TrimEnd().Split(globalOptions.InputFieldSeparator ?? globalOptions.FieldSeparator);
+        var set = command.Execute(inputRecord);
+
+        if (prevSet is not null)
+        {
+            await stdout.WriteSetAsync(prevSet, false);
+            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+        }
+
+        prevSet = set;
+    }
+
+    if (prevSet is not null)
+        await stdout.WriteSetAsync(prevSet, false);
+}
 
 /// <summary>
 /// すべてのサブコマンドで利用しているオプションをまとめたクラス

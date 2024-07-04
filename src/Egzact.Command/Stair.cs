@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Stair
+public class Stair : IEgzactMultipleResultCommand
 {
 
     private readonly Direction _direction;
@@ -43,7 +43,7 @@ public class Stair
     /// <param name="inputRecord"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public IReadOnlyList<IEnumerable<string>> Execute(IEnumerable<string> inputRecord)
+    public IReadOnlyList<IEnumerable<string>> Execute(IReadOnlyList<string> inputRecord)
     {
         var span = inputRecord.ToArray().AsSpan();
         var result = new List<IEnumerable<string>>();

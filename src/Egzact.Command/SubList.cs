@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class SubList
+public class SubList : IEgzactMultipleResultCommand
 {
     /// <summary>
     /// inputRecordのサブリストを返す
@@ -21,7 +21,7 @@ public class SubList
     /// </summary>
     /// <param name="inputRecord"></param>
     /// <returns></returns>
-    public static IReadOnlyList<IEnumerable<string>> Execute(IReadOnlyList<string> inputRecord)
+    public IReadOnlyList<IEnumerable<string>> Execute(IReadOnlyList<string> inputRecord)
     {
         var stair = new Stair(Direction.Right);
         var result = new List<IEnumerable<string>>();
@@ -30,7 +30,7 @@ public class SubList
         
         for (var i = 1; i <= length; i++)
         {
-            var set = stair.Execute(inputRecord.Take(i));
+            var set = stair.Execute(inputRecord.Take(i).ToList());
             result.AddRange(set.Reverse());
         }
 

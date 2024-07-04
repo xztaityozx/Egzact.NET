@@ -45,7 +45,7 @@ public class SubListTest
     public void TestExecute(TestExecuteTestCase testCase)
     {
         var subList = new SubList();
-        var actual = SubList.Execute(testCase.InputRecord);
+        var actual = subList.Execute(testCase.InputRecord);
         Assert.Equal(testCase.Expected, actual);
     }
 }

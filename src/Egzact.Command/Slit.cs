@@ -1,6 +1,8 @@
+using Egzact.Shared;
+
 namespace Egzact.Command;
 
-public class Slit
+public class Slit : IEgzactMultipleResultCommand
 {
     private readonly int _numberOfSlits;
 

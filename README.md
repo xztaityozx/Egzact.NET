@@ -8,10 +8,11 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 - [x] `slit`
 - [x] `stairl`
 - [x] `stairr`
-- [ ] `sublist`
-- [ ] `subset`
+- [x] `sublist`
+- [x] `subset`
 - [ ] `crops`
-- [ ] `cycle`
+  - 列挙はできるけど出力順が再現できないので実装まだ
+- [x] `cycle`
 - [ ] `comb`
 - [ ] `perm`
 - [ ] `dupl`

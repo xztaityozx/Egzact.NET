@@ -115,6 +115,9 @@ app.AddCommand("sublist",
 app.AddCommand("subset",
     async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new SubSet()));
 
+app.AddCommand("cycle",
+    async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Cycle()));
+
 app.Run();
 
 return;

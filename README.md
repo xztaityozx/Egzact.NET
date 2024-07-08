@@ -16,7 +16,7 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 - [x] `comb`
 - [ ] `perm`
   - 列挙はできるけど出力順が再現できないので実装はまだ
-- [ ] `dupl`
+- [x] `dupl`
 - [ ] `obrev`
 - [ ] `addl`
 - [ ] `addr`

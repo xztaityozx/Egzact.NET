@@ -126,6 +126,9 @@ app.AddCommand("dupl",
     async (GlobalOptions globalOptions, [Argument] int numberOfRows) =>
     await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Duplicate(numberOfRows)));
 
+app.AddCommand("obrev",
+    async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Obrev()));
+
 app.Run();
 
 return;

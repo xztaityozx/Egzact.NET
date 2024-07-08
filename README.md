@@ -13,7 +13,7 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 - [ ] `crops`
   - 列挙はできるけど出力順が再現できないので実装まだ
 - [x] `cycle`
-- [ ] `comb`
+- [x] `comb`
 - [ ] `perm`
 - [ ] `dupl`
 - [ ] `obrev`

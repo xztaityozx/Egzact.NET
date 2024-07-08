@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Duplicate : IEgzactMultipleResultCommand
+public class Duplicate : IEgzactCommand
 {
     private readonly int _numberOfRows;
 

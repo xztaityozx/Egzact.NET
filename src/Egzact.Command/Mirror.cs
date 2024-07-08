@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Mirror : IEgzactMultipleResultCommand
+public class Mirror : IEgzactCommand
 {
     /// <summary>
     /// 入力された文字列を反転させる

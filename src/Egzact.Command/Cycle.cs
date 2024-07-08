@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Cycle : IEgzactMultipleResultCommand
+public class Cycle : IEgzactCommand
 {
     /// <summary>
     /// 入力レコードを回転させます

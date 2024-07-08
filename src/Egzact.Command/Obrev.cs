@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Obrev : IEgzactMultipleResultCommand
+public class Obrev : IEgzactCommand
 {
     /// <summary>
     /// 入力レコードとその逆順を返す

@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Stair : IEgzactMultipleResultCommand
+public class Stair : IEgzactCommand
 {
 
     private readonly Direction _direction;

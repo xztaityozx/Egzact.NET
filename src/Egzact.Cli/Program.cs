@@ -160,7 +160,7 @@ app.Run();
 
 return;
 
-async Task ExecuteEgzactMultipleResultCommandAsync(GlobalOptions globalOptions, IEgzactMultipleResultCommand command)
+async Task ExecuteEgzactMultipleResultCommandAsync(GlobalOptions globalOptions, IEgzactCommand command)
 {
     using var stdin = new StreamReader(Console.OpenStandardInput());
     await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());

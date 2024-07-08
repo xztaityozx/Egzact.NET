@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Slit : IEgzactMultipleResultCommand
+public class Slit : IEgzactCommand
 {
     private readonly int _numberOfSlits;
 

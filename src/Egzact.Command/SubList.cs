@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class SubList : IEgzactMultipleResultCommand
+public class SubList : IEgzactCommand
 {
     /// <summary>
     /// inputRecordのサブリストを返す

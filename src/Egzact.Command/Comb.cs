@@ -2,7 +2,7 @@ using Egzact.Shared;
 
 namespace Egzact.Command;
 
-public class Comb : IEgzactMultipleResultCommand
+public class Comb : IEgzactCommand
 {
     private readonly int _numberOfColumns;
     

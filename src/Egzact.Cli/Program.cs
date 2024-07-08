@@ -118,8 +118,13 @@ app.AddCommand("subset",
 app.AddCommand("cycle",
     async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Cycle()));
 
-app.AddCommand("comb", async(GlobalOptions globalOptions, [Argument] int numberOfColumns) =>
+app.AddCommand("comb",
+    async (GlobalOptions globalOptions, [Argument] int numberOfColumns) =>
     await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Comb(numberOfColumns)));
+
+app.AddCommand("dupl",
+    async (GlobalOptions globalOptions, [Argument] int numberOfRows) =>
+    await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Duplicate(numberOfRows)));
 
 app.Run();
 

@@ -18,8 +18,8 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
   - 列挙はできるけど出力順が再現できないので実装はまだ
 - [x] `dupl`
 - [x] `obrev`
-- [ ] `addl`
-- [ ] `addr`
+- [x] `addl`
+- [x] `addr`
 - [ ] `mirror`
 - [ ] `takel`
 - [ ] `taker`

@@ -129,6 +129,30 @@ app.AddCommand("dupl",
 app.AddCommand("obrev",
     async (GlobalOptions globalOptions) => await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Obrev()));
 
+app.AddCommand("add", async (GlobalOptions globalOptions, [Option] Direction direction, [Argument] string element) =>
+{
+    var add = new Add(direction, element);
+    using var stdin = new StreamReader(Console.OpenStandardInput());
+    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
+    IReadOnlyList<IEnumerable<string>>? prevSet = null;
+    while (await stdin.ReadLineAsync() is { } line)
+    {
+        List<IEnumerable<string>> set = [[add.Execute(line)]];
+        if (prevSet is not null)
+        {
+            await stdout.WriteSetAsync(prevSet, false);
+            if (globalOptions.EndOfSet != Environment.NewLine) await stdout.WriteLineEosAsync();
+        }
+        
+        prevSet = set;
+    }
+
+    if (prevSet is not null)
+    {
+        await stdout.WriteSetAsync(prevSet, false);
+    }
+});
+
 app.Run();
 
 return;

@@ -20,7 +20,7 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 - [x] `obrev`
 - [x] `addl`
 - [x] `addr`
-- [ ] `mirror`
+- [x] `mirror`
 - [ ] `takel`
 - [ ] `taker`
 - [ ] `takelx`

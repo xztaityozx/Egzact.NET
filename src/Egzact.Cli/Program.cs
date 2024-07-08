@@ -153,6 +153,9 @@ app.AddCommand("add", async (GlobalOptions globalOptions, [Option] Direction dir
     }
 });
 
+app.AddCommand("mirror", async (GlobalOptions globalOptions) =>
+    await ExecuteEgzactMultipleResultCommandAsync(globalOptions, new Mirror()));
+
 app.Run();
 
 return;
@@ -160,8 +163,7 @@ return;
 async Task ExecuteEgzactMultipleResultCommandAsync(GlobalOptions globalOptions, IEgzactMultipleResultCommand command)
 {
     using var stdin = new StreamReader(Console.OpenStandardInput());
-    await using var stdout =
-        new OutputStream(Console.OpenStandardOutput(), " ", Environment.NewLine, Environment.NewLine);
+    await using var stdout = globalOptions.CreateOutputStream(Console.OpenStandardOutput());
     IReadOnlyList<IEnumerable<string>>? prevSet = null;
 
     while (await stdin.ReadLineAsync() is { } line)

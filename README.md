@@ -11,10 +11,11 @@ re-implementation of [egzact](https://github.com/greymd/egzact) in C#.
 - [x] `sublist`
 - [x] `subset`
 - [ ] `crops`
-  - 列挙はできるけど出力順が再現できないので実装まだ
+  - 列挙はできるけど出力順が再現できないので実装はまだ
 - [x] `cycle`
 - [x] `comb`
 - [ ] `perm`
+  - 列挙はできるけど出力順が再現できないので実装はまだ
 - [ ] `dupl`
 - [ ] `obrev`
 - [ ] `addl`
